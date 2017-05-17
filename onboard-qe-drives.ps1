@@ -76,7 +76,10 @@ Function InitializeDisk {
     [Int]$DiskNumber,
     [String]$PartitionType = "GPT"
   )
-  Initialize-Disk -Number $DiskNumber -PartitionStyle $PartitionType -Confirm:$false
+  # Initialize only if it was not
+  if ((Get-Disk -Number $DiskNumber).PartitionStyle -eq 'RAW') {
+    Initialize-Disk -Number $DiskNumber -PartitionStyle $PartitionType -Confirm:$false
+  }
 }
 
 Function PartitionDisk {
@@ -84,7 +87,10 @@ Function PartitionDisk {
     [Int]$DiskNumber,
     [string]$DriveLetter
   )
-  New-Partition -DiskNumber $DiskNumber -DriveLetter $DriveLetter -UseMaximumSize
+  # Partition only if it was not
+  if ( (Get-Partition -DiskNumber $DiskNumber).PartitionNumber -eq 0 ) {
+    New-Partition -DiskNumber $DiskNumber -DriveLetter $DriveLetter -UseMaximumSize
+  }
 }
 
 Function FormatDisk {
@@ -93,7 +99,10 @@ Function FormatDisk {
     [string]$FStype = "NTFS",
     [string]$FSlabel
   )
-  Format-Volume -DriveLetter $DriveLetter -FileSystem $FStype -NewFileSystemLabel $FSlabel -Confirm:$false
+  # Fomat it only if it was not
+  if ((Get-Volume -DriveLetter $DriveLetter).DriveLetter -ne $DriveLetter) {
+    Format-Volume -DriveLetter $DriveLetter -FileSystem $FStype -NewFileSystemLabel $FSlabel -Confirm:$false
+  }
 }
 
 # Install MPIO if not already
