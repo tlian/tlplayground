@@ -20,11 +20,11 @@
 
 param(
   [Int]$QdriveLunId,
-  [String]$QdriveLetter = "Q",
-  [String]$QdriveFSLabel = "quorum",
+  [String]$QdriveLetter="Q",
+  [String]$QdriveFSLabel="quorum",
   [Int]$EdriveLunId,
-  [String]$EdriveLetter = "E",
-  [String]$EdriveFSLabel = "E Drive"
+  [String]$EdriveLetter="E",
+  [String]$EdriveFSLabel="E Drive"
 )
 
 $DiskModelPrefix = "3PARdata"
@@ -76,7 +76,7 @@ Function InitializeDisk {
     [Int]$DiskNumber,
     [String]$PartitionType = "GPT"
   )
-  Initialize-Disk -Number $DiskNumber -PartitionStyle $PartitionType
+  Initialize-Disk -Number $DiskNumber -PartitionStyle $PartitionType -Confirm:$false
 }
 
 Function PartitionDisk {
@@ -110,7 +110,9 @@ If (!(_Is3PARdataSupported)) {
 if ( $QdriveLunId ) {
   $QdiskNum = MapLunIdToDiskNumber -LunId $QdriveLunId
   InitializeDisk -DiskNumber $QdiskNum
-  PartitionDisk -DiskNumber $QdiskNum
+  # Disable ShellHWDetection to supress window dialog prompt to format
+  Stop-Service -Name ShellHWDetection
+  PartitionDisk -DiskNumber $QdiskNum -DriveLetter $QdriveLetter
   FormatDisk -DriveLetter $QdriveLetter -FSlabel $QdriveFSLabel
 }
 
@@ -118,6 +120,7 @@ if ( $QdriveLunId ) {
 if ( $EdriveLunId ) {
   $EdiskNum = MapLunIdToDiskNumber -LunId $EdriveLunId
   InitializeDisk -DiskNumber $EdiskNum
-  PartitionDisk -DiskNumber $EdiskNum
+  Stop-Service -Name ShellHWDetection
+  PartitionDisk -DiskNumber $EdiskNum -DriveLetter $EdriveLetter
   FormatDisk -DriveLetter $EdriveLetter -FSlabel $EdriveFSLabel
 }
