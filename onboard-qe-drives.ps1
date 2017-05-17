@@ -28,7 +28,6 @@ param(
 )
 
 $DiskModelPrefix = "3PARdata"
-$Logfile = "onboard-qe-drives.log"
 
 Function IsMpioInstalled {
   $mpio = Get-WindowsFeature "*multipath*"
@@ -43,13 +42,11 @@ Function _Is3PARdataSupported {
 
 Function _InstallMPIOFeature {
   # Only Helper function - should be handled by Chef Cookbook
-  Write-Log "Installing MPIO Feature" $Logfile "Info"
   Add-WindowsFeature -Name "Multipath-IO"
 }
 
 Function _Add3PARdataMpioDevice {
   # Helper function only - should be handled by Chef cookbook
-  Write-Log "Adding 3PARdata VV device to MPIO." $Logfile "Info"
   New-MSDSMSupportedHW -VendorId $DiskModelPrefix -ProductId "VV"
 }
 
@@ -106,12 +103,11 @@ If (!(IsMpioInstalled)) { _InstallMPIOFeature }
 If (!(_Is3PARdataSupported)) { 
   _Add3PARdataMpioDevice
   $msg = "WARNING: Reboot required post configuring MPIO. Re-run the script after reboot."
-  Write-Log $msg $Logfile "Warn"
+  throw $msg
 }
 
 # Onboard Quorum drive
 if ( $QdriveLunId ) {
-  Write-Log "Onboarding Quorum drive." $Logfile "Info"
   $QdiskNum = MapLunIdToDiskNumber -LunId $QdriveLunId
   InitializeDisk -DiskNumber $QdiskNum
   PartitionDisk -DiskNumber $QdiskNum
@@ -120,7 +116,6 @@ if ( $QdriveLunId ) {
 
 # Onboard E Drive
 if ( $EdriveLunId ) {
-  Write-Log "Onboarding E drive." $Logfile "Info"
   $EdiskNum = MapLunIdToDiskNumber -LunId $EdriveLunId
   InitializeDisk -DiskNumber $EdiskNum
   PartitionDisk -DiskNumber $EdiskNum
