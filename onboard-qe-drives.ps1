@@ -20,10 +20,15 @@
 
 param(
   [Int]$QdriveLunId,
-  [Int]$EdriveLunId
+  [String]$QdriveLetter = "Q",
+  [String]$QdriveFSLabel = "quorum",
+  [Int]$EdriveLunId,
+  [String]$EdriveLetter = "E",
+  [String]$EdriveFSLabel = "E Drive"
 )
 
 $DiskModelPrefix = "3PARdata"
+$Logfile = "onboard-qe-drives.log"
 
 Function IsMpioInstalled {
   $mpio = Get-WindowsFeature "*multipath*"
@@ -38,11 +43,13 @@ Function _Is3PARdataSupported {
 
 Function _InstallMPIOFeature {
   # Only Helper function - should be handled by Chef Cookbook
+  Write-Log "Installing MPIO Feature" $Logfile "Info"
   Add-WindowsFeature -Name "Multipath-IO"
 }
 
 Function _Add3PARdataMpioDevice {
   # Helper function only - should be handled by Chef cookbook
+  Write-Log "Adding 3PARdata VV device to MPIO." $Logfile "Info"
   New-MSDSMSupportedHW -VendorId $DiskModelPrefix -ProductId "VV"
 }
 
@@ -80,8 +87,7 @@ Function PartitionDisk {
     [Int]$DiskNumber,
     [string]$DriveLetter
   )
-  New-Partition -DiskNumber $DiskNumber -UseMaximumSize
-  # New-Partition -DiskNumber $DiskNumber -AssignDriveLetter -UseMaximumSize
+  New-Partition -DiskNumber $DiskNumber -DriveLetter $DriveLetter -UseMaximumSize
 }
 
 Function FormatDisk {
@@ -99,18 +105,24 @@ If (!(IsMpioInstalled)) { _InstallMPIOFeature }
 # Add 3PARdata device if not already
 If (!(_Is3PARdataSupported)) { 
   _Add3PARdataMpioDevice
-  _RebootComputer
-  Start-Sleep -m 5
+  $msg = "WARNING: Reboot required post configuring MPIO. Re-run the script after reboot."
+  Write-Log $msg $Logfile "Warn"
 }
 
-# Extract Disk number
-$QdiskNum = MapLunIdToDiskNumber -LunId $QdriveLunId
+# Onboard Quorum drive
+if ( $QdriveLunId ) {
+  Write-Log "Onboarding Quorum drive." $Logfile "Info"
+  $QdiskNum = MapLunIdToDiskNumber -LunId $QdriveLunId
+  InitializeDisk -DiskNumber $QdiskNum
+  PartitionDisk -DiskNumber $QdiskNum
+  FormatDisk -DriveLetter $QdriveLetter -FSlabel $QdriveFSLabel
+}
 
-# Initialize Disk
-InitializeDisk -DiskNumber $QdiskNum
-
-# Partition Disk
-PartitionDisk -DiskNumber $QdiskNum
-
-# Format Disk
-FormatDisk -DriveLetter "Q" -FSlabel "quorum"
+# Onboard E Drive
+if ( $EdriveLunId ) {
+  Write-Log "Onboarding E drive." $Logfile "Info"
+  $EdiskNum = MapLunIdToDiskNumber -LunId $EdriveLunId
+  InitializeDisk -DiskNumber $EdiskNum
+  PartitionDisk -DiskNumber $EdiskNum
+  FormatDisk -DriveLetter $EdriveLetter -FSlabel $EdriveFSLabel
+}
