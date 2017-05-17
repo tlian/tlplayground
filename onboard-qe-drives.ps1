@@ -106,7 +106,11 @@ Function FormatDisk {
 }
 
 # Install MPIO if not already
-If (!(IsMpioInstalled)) { _InstallMPIOFeature }
+If (!(IsMpioInstalled)) {
+  _InstallMPIOFeature
+  $msg = "WARNING: Reboot required post MPIO install. Re-run the script after reboot."
+  throw $msg
+}
 
 # Add 3PARdata device if not already
 If (!(_Is3PARdataSupported)) { 
