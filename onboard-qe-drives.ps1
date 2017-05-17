@@ -19,10 +19,10 @@
 #>
 
 param(
-  [Int]$QdriveLunId,
+  [Int]$QdriveLunId=-1,
   [String]$QdriveLetter="Q",
   [String]$QdriveFSLabel="quorum",
-  [Int]$EdriveLunId,
+  [Int]$EdriveLunId=-1,
   [String]$EdriveLetter="E",
   [String]$EdriveFSLabel="E Drive"
 )
@@ -88,7 +88,7 @@ Function PartitionDisk {
     [string]$DriveLetter
   )
   # Partition only if it was not
-  if ( (Get-Partition -DiskNumber $DiskNumber).PartitionNumber -eq 0 ) {
+  if ( (Get-Disk -Number $DiskNumber).NumberOfPartitions -eq 0 ) {
     New-Partition -DiskNumber $DiskNumber -DriveLetter $DriveLetter -UseMaximumSize
   }
 }
@@ -100,7 +100,7 @@ Function FormatDisk {
     [string]$FSlabel
   )
   # Fomat it only if it was not
-  if ((Get-Volume -DriveLetter $DriveLetter).DriveLetter -ne $DriveLetter) {
+  if (!((Get-Volume -DriveLetter $DriveLetter).FileSystem)) {
     Format-Volume -DriveLetter $DriveLetter -FileSystem $FStype -NewFileSystemLabel $FSlabel -Confirm:$false
   }
 }
@@ -120,7 +120,7 @@ If (!(_Is3PARdataSupported)) {
 }
 
 # Onboard Quorum drive
-if ( $QdriveLunId ) {
+if ( $QdriveLunId -ne -1 ) {
   $QdiskNum = MapLunIdToDiskNumber -LunId $QdriveLunId
   InitializeDisk -DiskNumber $QdiskNum
   # Disable ShellHWDetection to supress window dialog prompt to format
@@ -130,7 +130,7 @@ if ( $QdriveLunId ) {
 }
 
 # Onboard E Drive
-if ( $EdriveLunId ) {
+if ( $EdriveLunId -ne -1 ) {
   $EdiskNum = MapLunIdToDiskNumber -LunId $EdriveLunId
   InitializeDisk -DiskNumber $EdiskNum
   Stop-Service -Name ShellHWDetection
