@@ -126,6 +126,7 @@ if ( $QdriveLunId -ne -1 ) {
   # Disable ShellHWDetection to supress window dialog prompt to format
   Stop-Service -Name ShellHWDetection
   PartitionDisk -DiskNumber $QdiskNum -DriveLetter $QdriveLetter
+  Start-Sleep -Seconds 10
   FormatDisk -DriveLetter $QdriveLetter -FSlabel $QdriveFSLabel
 }
 
@@ -135,5 +136,6 @@ if ( $EdriveLunId -ne -1 ) {
   InitializeDisk -DiskNumber $EdiskNum
   Stop-Service -Name ShellHWDetection
   PartitionDisk -DiskNumber $EdiskNum -DriveLetter $EdriveLetter
+  Start-Sleep -Seconds 10
   FormatDisk -DriveLetter $EdriveLetter -FSlabel $EdriveFSLabel
 }
