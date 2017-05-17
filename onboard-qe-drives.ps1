@@ -66,7 +66,9 @@ Function MapLunIdToDiskNumber {
   $disk = gwmi -class Win32_DiskDrive | `
           ? { $_.SCSILogicalUnit -eq $LunId -and $_.partitions -eq 0 -and $_.Model -like "$DiskModelPrefix*" }
   # The following may not be needed. PS returns everything so cast the desired value in the calling subroutine.
-  if (!($disk.Index.length -eq 1)) { throw "FAILED to map LunID to Disk Drive Number. Found zero or multiple drives!"}
+  if (!($disk.Index.length -eq 1)) { 
+    return $null
+  }
   $driveNum = $disk.Index
   return $driveNum
 }
@@ -122,20 +124,32 @@ If (!(_Is3PARdataSupported)) {
 # Onboard Quorum drive
 if ( $QdriveLunId -ne -1 ) {
   $QdiskNum = MapLunIdToDiskNumber -LunId $QdriveLunId
-  InitializeDisk -DiskNumber $QdiskNum
-  # Disable ShellHWDetection to supress window dialog prompt to format
-  Stop-Service -Name ShellHWDetection
-  PartitionDisk -DiskNumber $QdiskNum -DriveLetter $QdriveLetter
-  Start-Sleep -Seconds 10
-  FormatDisk -DriveLetter $QdriveLetter -FSlabel $QdriveFSLabel
+  if ( $QdiskNum ) {
+      InitializeDisk -DiskNumber $QdiskNum
+      # Disable ShellHWDetection to supress window dialog prompt to format
+      Stop-Service -Name ShellHWDetection
+      PartitionDisk -DiskNumber $QdiskNum -DriveLetter $QdriveLetter
+      Start-Sleep -Seconds 10
+      FormatDisk -DriveLetter $QdriveLetter -FSlabel $QdriveFSLabel
+  }
+  else
+  {
+    Write-Host "Could NOT map Quorum Drive LunId to Disk Drive Number. Looked like disk already onboarded." 
+  }
 }
 
 # Onboard E Drive
 if ( $EdriveLunId -ne -1 ) {
   $EdiskNum = MapLunIdToDiskNumber -LunId $EdriveLunId
-  InitializeDisk -DiskNumber $EdiskNum
-  Stop-Service -Name ShellHWDetection
-  PartitionDisk -DiskNumber $EdiskNum -DriveLetter $EdriveLetter
-  Start-Sleep -Seconds 10
-  FormatDisk -DriveLetter $EdriveLetter -FSlabel $EdriveFSLabel
+  if ( $EdiskNum ) {
+      InitializeDisk -DiskNumber $EdiskNum
+      Stop-Service -Name ShellHWDetection
+      PartitionDisk -DiskNumber $EdiskNum -DriveLetter $EdriveLetter
+      Start-Sleep -Seconds 10
+      FormatDisk -DriveLetter $EdriveLetter -FSlabel $EdriveFSLabel
+  }
+  else 
+  {
+    Write-Host "Could NOT map E Drive LunId to Disk Drive Number. Looked like disk already onboarded." 
+  }
 }
