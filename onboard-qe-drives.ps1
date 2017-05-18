@@ -81,7 +81,9 @@ Function InitializeDisk {
   # Initialize only if it was not
   if ((Get-Disk -Number $DiskNumber).PartitionStyle -eq 'RAW') {
     Initialize-Disk -Number $DiskNumber -PartitionStyle $PartitionType -Confirm:$false
+    return $true
   }
+  return $false
 }
 
 Function PartitionDisk {
@@ -90,7 +92,7 @@ Function PartitionDisk {
     [string]$DriveLetter
   )
   # Partition only if it was not
-  if ( (Get-Disk -Number $DiskNumber).NumberOfPartitions -eq 0 ) {
+  if ( (Get-Disk -Number $DiskNumber).NumberOfPartitions -eq 1 ) {
     New-Partition -DiskNumber $DiskNumber -DriveLetter $DriveLetter -UseMaximumSize
   }
 }
@@ -125,12 +127,13 @@ If (!(_Is3PARdataSupported)) {
 if ( $QdriveLunId -ne -1 ) {
   $QdiskNum = MapLunIdToDiskNumber -LunId $QdriveLunId
   if ( $QdiskNum ) {
-      InitializeDisk -DiskNumber $QdiskNum
-      # Disable ShellHWDetection to supress window dialog prompt to format
-      Stop-Service -Name ShellHWDetection
-      PartitionDisk -DiskNumber $QdiskNum -DriveLetter $QdriveLetter
-      Start-Sleep -Seconds 10
-      FormatDisk -DriveLetter $QdriveLetter -FSlabel $QdriveFSLabel
+      # Only with RAW disk, attempt to exe all tasks
+      if ( InitializeDisk -DiskNumber $QdiskNum ) {
+        # Disable ShellHWDetection to supress window dialog prompt to format
+        Stop-Service -Name ShellHWDetection
+        PartitionDisk -DiskNumber $QdiskNum -DriveLetter $QdriveLetter
+        FormatDisk -DriveLetter $QdriveLetter -FSlabel $QdriveFSLabel
+      }
   }
   else
   {
@@ -142,11 +145,11 @@ if ( $QdriveLunId -ne -1 ) {
 if ( $EdriveLunId -ne -1 ) {
   $EdiskNum = MapLunIdToDiskNumber -LunId $EdriveLunId
   if ( $EdiskNum ) {
-      InitializeDisk -DiskNumber $EdiskNum
-      Stop-Service -Name ShellHWDetection
-      PartitionDisk -DiskNumber $EdiskNum -DriveLetter $EdriveLetter
-      Start-Sleep -Seconds 10
-      FormatDisk -DriveLetter $EdriveLetter -FSlabel $EdriveFSLabel
+      if ( InitializeDisk -DiskNumber $EdiskNum ) {
+        Stop-Service -Name ShellHWDetection
+        PartitionDisk -DiskNumber $EdiskNum -DriveLetter $EdriveLetter
+        FormatDisk -DriveLetter $EdriveLetter -FSlabel $EdriveFSLabel
+      }
   }
   else 
   {
