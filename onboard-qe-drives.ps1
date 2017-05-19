@@ -27,7 +27,24 @@ param(
   [String]$EdriveFSLabel="E Drive"
 )
 
+# Set var
 $DiskModelPrefix = "3PARdata"
+# Command line argument override env var
+if ( $QdriveLunId -eq -1 ) {
+  try {
+    $QdriveLunId = (Get-ChildItem env:QdriveLunId -ErrorAction Stop).Value
+  } catch {
+    $QdriveLunId = -1
+}
+  
+}
+if ( $EdriveLunId -eq -1 ) {
+  try {
+    $EdriveLunId = (Get-ChildItem env:EdriveLunId -ErrorAction Stop).Value
+  } catch {
+    $EdriveLunId = -1
+  }
+}
 
 Function IsMpioInstalled {
   $mpio = Get-WindowsFeature "*multipath*"
