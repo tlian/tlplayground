@@ -67,7 +67,7 @@ Function MapLunIdToDiskNumber {
     [Int]$LunId
   )
   $disk = gwmi -class Win32_DiskDrive | `
-          ? { $_.SCSIBus -eq $LunId -and $_.partitions -eq 0 }
+          ? { $_.SCSILogicalUnit -eq $LunId -and $_.partitions -eq 0 -and $_.Model -Like "$DiskModelPrefix*" }
   # The following may not be needed. PS returns everything so cast the desired value in the calling subroutine.
   if (!($disk.Index.length -eq 1)) { 
     return $null
@@ -112,6 +112,20 @@ Function FormatDisk {
   }
 }
 
+Function MountPartition {
+  Param(
+    [Int]$DiskNumber,
+    [string]$MountPath,
+    [string]$FStype = "NTFS",
+    [string]$FSlabel
+  )
+    New-Item $MountPath -type Directory
+    New-Partition -DiskNumber $DiskNumber -UseMaximumSize
+    # PartitionNumber should always be '2', the first one '1' is the small formatting partition
+    Add-PartitionAccessPath -DiskNumber $DiskNumber -PartitionNumber 2 -AccessPath $MountPath -PassThru `
+       | Format-Volume -FileSystem $FStype -NewFileSystemLabel $FSlabel -Confirm:$false
+}
+
 # Install MPIO if not already - ONLY HELPER FUNCTION per dev
 #If (!(_IsMpioInstalled)) {
 #  _InstallMPIOFeature
@@ -129,7 +143,8 @@ Function FormatDisk {
 # Convert LunId to Int type
 $DLunId = [int]$DLunId
 # Drive Letter may contain some colon and slash, strip it
-$DriveLetter, $Path= $DriveLetter.split(':')
+$MountPath = $DriveLetter
+$DriveLetter, $Path = $DriveLetter.split(':')
 
 # Onboard a drive
 if ( ($DLunId -ne -1) -and $DriveLetter -and $DriveLabel ) {
@@ -139,8 +154,13 @@ if ( ($DLunId -ne -1) -and $DriveLetter -and $DriveLabel ) {
       if ( InitializeDisk -DiskNumber $DiskNum ) {
         # Disable ShellHWDetection to supress window dialog prompt to format
         Stop-Service -Name ShellHWDetection
-        PartitionDisk -DiskNumber $DiskNum -DriveLetter $DriveLetter
-        FormatDisk -DriveLetter $DriveLetter -FSlabel $DriveLabel
+        if ( $Path.length -lt 3 ) {
+            PartitionDisk -DiskNumber $DiskNum -DriveLetter $DriveLetter
+            FormatDisk -DriveLetter $DriveLetter -FSlabel $DriveLabel
+        }
+        else {
+          MountPartition -DiskNumber $DiskNum -MountPath $MountPath -FSlabel $DriveLabel
+        }
       }
   }
   else

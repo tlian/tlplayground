@@ -1,0 +1,11 @@
+name 'onboard-luns'
+maintainer 'Salesforce'
+maintainer_email 'tlian@salesforce.com'
+license 'all_rights'
+description 'Onboard LUN disk(s)'
+long_description 'Onboard LUN disk(s); initialize, partition, format'
+version '0.1.2'
+supports 'windows'
+issues_url 'https://github.exacttarget.com/chef-supermarket/onboard_luns/issues'
+source_url 'https://github.exacttarget.com/chef-supermarket/onboard_luns'
+chef_version '>= 12.1' if respond_to?(:chef_version)

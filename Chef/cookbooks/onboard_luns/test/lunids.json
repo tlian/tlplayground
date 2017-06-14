@@ -1,0 +1,259 @@
+{
+  "storage": [
+    {
+      "LUN": 0,
+      "Name": "atl1qa1infaut_q_drive",
+      "Path": "Q:\\"
+    },
+    {
+      "LUN": 1,
+      "Name": "atl1qa1infaut_e_drive",
+      "Path": "E:\\"
+    },
+    {
+      "LUN": 2,
+      "Name": "atl1qa1infaut_f_drive",
+      "Path": "F:\\"
+    },
+    {
+      "LUN": 3,
+      "Name": "atl1qa1infaut_g_drive",
+      "Path": "G:\\"
+    },
+    {
+      "LUN": 4,
+      "Name": "atl1qa1infaut_h_drive",
+      "Path": "h:\\"
+    },
+    {
+      "LUN": 5,
+      "Name": "atl1qa1infaut_I_drive",
+      "Path": "I:\\"
+    },
+    {
+      "LUN": 6,
+      "Name": "atl1qa1infaut_j_drive",
+      "Path": "J:\\"
+    },
+    {
+      "LUN": 7,
+      "Name": "atl1qa1infaut_k_drive",
+      "Path": "K:\\"
+    },
+    {
+      "LUN": 8,
+      "Name": "atl1qa1infaut_l_drive",
+      "Path": "L:\\"
+    },
+    {
+      "LUN": 9,
+      "Name": "atl1qa1infaut_m_drive",
+      "Path": "M:\\"
+    },
+    {
+      "LUN": 10,
+      "Name": "atl1qa1infaut_g_drive",
+      "Path": "N:\\"
+    },
+    {
+      "LUN": 11,
+      "Name": "atl1qa1infaut_I01_Bak1",
+      "Path": "E:\\SQL\\I01\\Bak1"
+    },
+    {
+      "LUN": 12,
+      "Name": "atl1qa1infaut_I01_Bak2",
+      "Path": "E:\\SQL\\I01\\Bak2"
+    },
+    {
+      "LUN": 13,
+      "Name": "atl1qa1infaut_I01_TempDB",
+      "Path": "E:\\SQL\\I01\\TempDB"
+    },
+    {
+      "LUN": 14,
+      "Name": "atl1qa1infaut_I01_Utility",
+      "Path": "E:\\SQL\\I01\\Utility"
+    },
+    {
+      "LUN": 15,
+      "Name": "atl1qa1infaut_I02_Bak1",
+      "Path": "F:\\SQL\\I02\\Bak1"
+    },
+    {
+      "LUN": 16,
+      "Name": "atl1qa1infaut_I02_Bak2",
+      "Path": "F:\\SQL\\I02\\Bak2"
+    },
+    {
+      "LUN": 17,
+      "Name": "atl1qa1infaut_I02_TempDB",
+      "Path": "F:\\SQL\\I02\\TempDB"
+    },
+    {
+      "LUN": 18,
+      "Name": "atl1qa1infaut_I02_Utility",
+      "Path": "F:\\SQL\\I02\\Utility"
+    },
+    {
+      "LUN": 19,
+      "Name": "atl1qa1infaut_I03_Bak1",
+      "Path": "G:\\SQL\\I03\\Bak1"
+    },
+    {
+      "LUN": 20,
+      "Name": "atl1qa1infaut_I03_Bak2",
+      "Path": "G:\\SQL\\I03\\Bak2"
+    },
+    {
+      "LUN": 21,
+      "Name": "atl1qa1infaut_I03_TempDB",
+      "Path": "G:\\SQL\\I03\\TempDB"
+    },
+    {
+      "LUN": 22,
+      "Name": "atl1qa1infaut_I03_Utility",
+      "Path": "G:\\SQL\\I03\\Utility"
+    },
+    {
+      "LUN": 23,
+      "Name": "atl1qa1infaut_I03_Bak1",
+      "Path": "H:\\SQL\\I04\\Bak1"
+    },
+    {
+      "LUN": 24,
+      "Name": "atl1qa1infaut_I04_Bak2",
+      "Path": "H:\\SQL\\I04\\Bak2"
+    },
+    {
+      "LUN": 25,
+      "Name": "atl1qa1infaut_I04_TempDB",
+      "Path": "H:\\SQL\\I04\\TempDB"
+    },
+    {
+      "LUN": 26,
+      "Name": "atl1qa1infaut_I04_Utility",
+      "Path": "H:\\SQL\\I04\\Utility"
+    },
+    {
+      "LUN": 27,
+      "Name": "atl1qa1infaut_I05_Bak1",
+      "Path": "I:\\SQL\\I05\\Bak1"
+    },
+    {
+      "LUN": 28,
+      "Name": "atl1qa1infaut_I05_Bak2",
+      "Path": "I:\\SQL\\I05\\Bak2"
+    },
+    {
+      "LUN": 29,
+      "Name": "atl1qa1infaut_I05_TempDB",
+      "Path": "I:\\SQL\\I05\\TempDB"
+    },
+    {
+      "LUN": 30,
+      "Name": "atl1qa1infaut_I05_Utility",
+      "Path": "I:\\SQL\\I05\\Utility"
+    },
+    {
+      "LUN": 31,
+      "Name": "atl1qa1infaut_I06_Bak1",
+      "Path": "J:\\SQL\\I06\\Bak1"
+    },
+    {
+      "LUN": 32,
+      "Name": "atl1qa1infaut_I06_Bak2",
+      "Path": "J:\\SQL\\I06\\Bak2"
+    },
+    {
+      "LUN": 33,
+      "Name": "atl1qa1infaut_I06_TempDB",
+      "Path": "J:\\SQL\\I06\\TempDB"
+    },
+    {
+      "LUN": 34,
+      "Name": "atl1qa1infaut_I06_Utility",
+      "Path": "J:\\SQL\\I06\\Utility"
+    },
+    {
+      "LUN": 35,
+      "Name": "atl1qa1infaut_I07_Bak1",
+      "Path": "K:\\SQL\\I07\\Bak1"
+    },
+    {
+      "LUN": 36,
+      "Name": "atl1qa1infaut_I07_Bak2",
+      "Path": "K:\\SQL\\I07\\Bak2"
+    },
+    {
+      "LUN": 37,
+      "Name": "atl1qa1infaut_I07_TempDB",
+      "Path": "K:\\SQL\\I07\\TempDB"
+    },
+    {
+      "LUN": 38,
+      "Name": "atl1qa1infaut_I07_Utility",
+      "Path": "K:\\SQL\\I07\\Utility"
+    },
+    {
+      "LUN": 39,
+      "Name": "atl1qa1infaut_I08_Bak1",
+      "Path": "L:\\SQL\\I08\\Bak1"
+    },
+    {
+      "LUN": 40,
+      "Name": "atl1qa1infaut_I08_Bak2",
+      "Path": "L:\\SQL\\I08\\Bak2"
+    },
+    {
+      "LUN": 41,
+      "Name": "atl1qa1infaut_I08_TempDB",
+      "Path": "L:\\SQL\\I08\\TempDB"
+    },
+    {
+      "LUN": 42,
+      "Name": "atl1qa1infaut_I08_Utility",
+      "Path": "L:\\SQL\\I08\\Utility"
+    },
+    {
+      "LUN": 43,
+      "Name": "atl1qa1infaut_I09_Bak1",
+      "Path": "M:\\SQL\\I09\\Bak1"
+    },
+    {
+      "LUN": 44,
+      "Name": "atl1qa1infaut_I09_Bak2",
+      "Path": "M:\\SQL\\I09\\Bak2"
+    },
+    {
+      "LUN": 45,
+      "Name": "atl1qa1infaut_I09_TempDB",
+      "Path": "M:\\SQL\\I09\\TempDB"
+    },
+    {
+      "LUN": 46,
+      "Name": "atl1qa1infaut_I09_Utility",
+      "Path": "M:\\SQL\\I09\\Utility"
+    },
+    {
+      "LUN": 47,
+      "Name": "atl1qa1infaut_I10_Bak1",
+      "Path": "N:\\SQL\\I10\\Bak1"
+    },
+    {
+      "LUN": 48,
+      "Name": "atl1qa1infaut_I10_Bak2",
+      "Path": "N:\\SQL\\I10\\Bak2"
+    },
+    {
+      "LUN": 49,
+      "Name": "atl1qa1infaut_I10_TempDB",
+      "Path": "N:\\SQL\\I10\\TempDB"
+    },
+    {
+      "LUN": 50,
+      "Name": "atl1qa1infaut_I10_Utility",
+      "Path": "N:\\SQL\\I10\\Utility"
+    }
+  ]
+}
