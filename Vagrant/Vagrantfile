@@ -1,20 +1,103 @@
 Vagrant.configure("2") do |config|
-  config.vm.provision "shell", inline: "echo Hello"
-
-  config.vm.define "vm" do |vm|
+  config.vm.define "vm-1" do |vm1|
     # first parameter is path on the Host and second is path on guest
     config.vm.box = "bento/ubuntu-18.04"
     config.vm.synced_folder "/Users/thawngzapumlian/vagrant-synced", "/vagrant-synced"
     config.vm.provider :virtualbox do |vb|
-      vb.name = "vm1-bento-ubuntu-1804"
+      vb.name = "oval-vm-bento-ubuntu-1804"
     end
+    config.vm.provision "shell", inline: <<-SHELL
+      # Define variables
+      DAILY_OVAL_DB_MONITOR_WORKING_DIR="/vagrant-synced/daily-oval-db-check"
+      mkdir -p $DAILY_OVAL_DB_MONITOR_WORKING_DIR
+
+      OVAL_DB_ARCHIVE_FOLDER_PATH="OVAL-DB-ARCHIVE"
+      mkdir -p $OVAL_DB_ARCHIVE_FOLDER_PATH
+      OVAL_REPORT_ARCHIVE_FOLDER_PATH="OVAL-REPORT-ARCHIVE"
+      mkdir -p $OVAL_REPORT_ARCHIVE_FOLDER_PATH
+
+      LATEST_OVAL_DB_BZ2_NAME="com.ubuntu.$(lsb_release -cs).usn.oval-$(date '+%Y-%m-%d-%H:%M:%S').xml.bz2"
+      LATEST_OVAL_DB_EXTRACT_FILE_NAME="com.ubuntu.$(lsb_release -cs).usn.oval-$(date '+%Y-%m-%d-%H:%M:%S').xml"
+      LATEST_OVAL_REPORT_HTML_FILE_NAME="oval-html-report-$(date '+%Y-%m-%d-%H:%M:%S').html"
+
+      PREVIOUS_OVAL_DB_BZ2_PATH=$(find $DAILY_OVAL_DB_MONITOR_WORKING_DIR -maxdepth 1 -type f -name *.bz2)
+      PREVIOUS_OVAL_DB_EXTRACT_FILE_PATH=$(find $DAILY_OVAL_DB_MONITOR_WORKING_DIR -maxdepth 1 -type f -name *.xml)
+      PREVIOUS_OVAL_REPORT_HTML_FILE_PATH=$(find $DAILY_OVAL_DB_MONITOR_WORKING_DIR -maxdepth 1 -type f -name *.html)
+
+      installation () {
+        sudo apt-get -y update
+        # Install "rmadison" <package> -- find out the latest version available per a given package
+        sudo apt install -y devscripts
+        # Install "oscap"
+        sudo apt-get install -y libopenscap8
+        # Install cvescan
+        sudo snap install cvescan
+        # Install update-manager-core
+        sudo apt-get install -y update-manager-core
+        # Install bunzip2
+        # sudo apt-get install -y bunzip2
+      }
+
+      create_manifest () {
+        # Get manifest of all Debian packages install on the system
+        sudo dpkg-query -W > manifest
+        sudo chmod 664 manifest
+        sudo dpkg-query -W update-manager-core 2>&1 > /dev/null | sudo tee -a manifest
+      }
+      
+      ### continue to create function to download OVAL DB and then define variable at the top.
+      download_latest_oval_db () {
+        # Download latest OVAL DB
+        wget -q -O ${LATEST_OVAL_DB_BZ2_NAME} https://security-metadata.canonical.com/oval/com.ubuntu.$(lsb_release -cs).usn.oval.xml.bz2
+        # Extract it
+        bunzip2 -q ${LATEST_OVAL_DB_BZ2_NAME} 2>&1 > /dev/null
+      }
+      
+      generate_latest_html_report () {
+        oscap oval eval --report ${LATEST_OVAL_REPORT_HTML_FILE_NAME} ${DAILY_OVAL_DB_MONITOR_WORKING_DIR}/${LATEST_OVAL_DB_EXTRACT_FILE_NAME}
+      }
+
+      # Compare and report if new CVE(s) was published
+      reporting () {
+        # tlian
+        echo "PREVIOUS_OVAL_DB_EXTRACT_FILE_PATH -> ${PREVIOUS_OVAL_DB_EXTRACT_FILE_PATH}"
+        echo "LATEST_OVAL_DB_EXTRACT_FILE_NAME -> ${LATEST_OVAL_DB_EXTRACT_FILE_NAME}"
+        echo "CURRENT DIRECTORY -> "$(pwd)
+        diff -s ${PREVIOUS_OVAL_DB_EXTRACT_FILE_PATH} ${LATEST_OVAL_DB_EXTRACT_FILE_NAME} > /dev/null
+        status=$?
+        if [ $status -eq 0 ];then
+          echo "NO new Kernel CVE had been pusblished"
+        else
+          echo "New Kernel CVE(s) was published"
+        fi
+      }
+
+      # Archive previous OVAL extracted DB
+      archive () {
+        echo "Archiving previous OVAL extracted DB."
+        mv ${PREVIOUS_OVAL_DB_EXTRACT_FILE_PATH} ${OVAL_DB_ARCHIVE_FOLDER_PATH}
+        echo "Archiving previous HTML report"
+        mv ${PREVIOUS_OVAL_REPORT_HTML_FILE_PATH} ${OVAL_REPORT_ARCHIVE_FOLDER_PATH}
+        # Delete any *.bz2 files in $DAILY_OVAL_DB_MONITOR_WORKING_DIR/ anything older than 30 days ###### CONTINUE HERE
+      }
+
+      # Call functions step-by-step
+      pushd $DAILY_OVAL_DB_MONITOR_WORKING_DIR
+      installation
+      create_manifest
+      download_latest_oval_db
+      generate_latest_html_report
+      reporting
+      archive
+      popd
+    SHELL
   end
   
-  config.vm.define "vm2" do |vm2|
-    config.vm.box = "bento/ubuntu-18.04"
-    # config.vm2.synced_folder "/Users/thawngzapumlian/vagrant-synced", "/vagrant-synced"
-    config.vm.provider :virtualbox do |vb|
-      vb.name = "vm2-bento-ubuntu-1804"
-    end
-  end
+  # config.vm.define "vm-2" do |vm2|
+  #   config.vm.box = "bento/ubuntu-18.04"
+  #   # config.vm2.synced_folder "/Users/thawngzapumlian/vagrant-synced", "/vagrant-synced"
+  #   config.vm.provider :virtualbox do |vb|
+  #     vb.name = "vm2-bento-ubuntu-1804"
+  #   end
+  # end
 end
