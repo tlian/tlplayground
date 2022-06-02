@@ -59,17 +59,13 @@ Vagrant.configure("2") do |config|
 
       # Compare and report if new CVE(s) was published
       reporting () {
-        # tlian
-        echo "PREVIOUS_OVAL_DB_EXTRACT_FILE_PATH -> ${PREVIOUS_OVAL_DB_EXTRACT_FILE_PATH}"
-        echo "LATEST_OVAL_DB_EXTRACT_FILE_NAME -> ${LATEST_OVAL_DB_EXTRACT_FILE_NAME}"
-        echo "CURRENT DIRECTORY -> "$(pwd)
-        diff -s ${PREVIOUS_OVAL_DB_EXTRACT_FILE_PATH} ${LATEST_OVAL_DB_EXTRACT_FILE_NAME} > /dev/null
-        status=$?
-        if [ $status -eq 0 ];then
-          echo "NO new Kernel CVE had been pusblished"
-        else
-          echo "New Kernel CVE(s) was published"
-        fi
+        # Get the number of CVEs from previous HTML report
+        PREVIOUS_NUMBER_OF_CVE=$(grep 'href="https://ubuntu.com/security/CVE-' ${PREVIOUS_OVAL_REPORT_HTML_FILE_PATH} | wc -l)
+        LATEST_NUMBER_OF_CVE=$(grep 'href="https://ubuntu.com/security/CVE-' ${LATEST_OVAL_REPORT_HTML_FILE_NAME} | wc -l)
+        echo "LATEST_NUMBER_OF_CVE -> ${LATEST_NUMBER_OF_CVE}" > latest-cve-status-from-oval.txt
+        echo "PREVIOUS_NUMBER_OF_CVE -> ${PREVIOUS_NUMBER_OF_CVE}" >> latest-cve-status-from-oval.txt
+        echo "Number of new CVE -> $(expr ${LATEST_NUMBER_OF_CVE} - ${PREVIOUS_NUMBER_OF_CVE})" >> latest-cve-status-from-oval.txt
+        cat latest-cve-status-from-oval.txt
       }
 
       # Archive previous OVAL extracted DB
@@ -78,7 +74,10 @@ Vagrant.configure("2") do |config|
         mv ${PREVIOUS_OVAL_DB_EXTRACT_FILE_PATH} ${OVAL_DB_ARCHIVE_FOLDER_PATH}
         echo "Archiving previous HTML report"
         mv ${PREVIOUS_OVAL_REPORT_HTML_FILE_PATH} ${OVAL_REPORT_ARCHIVE_FOLDER_PATH}
-        # Delete any *.bz2 files in $DAILY_OVAL_DB_MONITOR_WORKING_DIR/ anything older than 30 days ###### CONTINUE HERE
+        # Delete any *.bz2 DB files older than 10 days
+        find ${OVAL_DB_ARCHIVE_FOLDER_PATH} -name "*.bz2" -type f -mtime +10 -delete
+        # Delete HTML arcived files older than 10 days
+        find ${OVAL_REPORT_ARCHIVE_FOLDER_PATH} -name "*.html" -type f -mtime +10 -delete
       }
 
       # Call functions step-by-step
